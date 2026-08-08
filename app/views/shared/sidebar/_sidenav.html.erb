@@ -1,0 +1,12 @@
+<div aria-label="sidenav" class="flex h-full flex-col gap-y-5 bg-gray-50">
+  <div class="flex items-center gap-2 px-5 pt-5 pb-2">
+    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900 text-sm font-bold text-white">P</span>
+    <span class="text-lg font-semibold text-gray-900">Parka</span>
+  </div>
+
+  <nav class="flex flex-1 flex-col overflow-y-auto pb-6">
+    <ul role="list" class="flex-1 px-3.5">
+      <%= render partial: "shared/sidebar/nav", collection: navigation_items, as: :item %>
+    </ul>
+  </nav>
+</div>

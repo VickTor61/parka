@@ -65,3 +65,6 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+# Backoffice - inline SVG icons
+gem "inline_svg"

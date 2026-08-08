@@ -1,0 +1,14 @@
+<div role="dialog" aria-modal="true" class="relative z-50 lg:hidden">
+  <div aria-hidden="true" class="fixed inset-0 hidden bg-gray-900/80 opacity-0" data-sidebar-target="backdrop" data-action="click->sidebar#close"></div>
+
+  <div class="fixed inset-y-0 left-0 hidden w-full max-w-[288px] -translate-x-full border-r border-gray-200 bg-gray-50" data-sidebar-target="panel">
+    <div class="absolute top-0 left-full flex w-16 justify-center pt-5">
+      <button type="button" data-action="sidebar#close" class="-m-2.5 p-2.5">
+        <span class="sr-only">Close sidebar</span>
+        <%= inline_svg_tag("x.svg", class: "size-6 text-white") %>
+      </button>
+    </div>
+
+    <%= render "shared/sidebar/sidenav" %>
+  </div>
+</div>

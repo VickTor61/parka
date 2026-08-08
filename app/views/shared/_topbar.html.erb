@@ -1,0 +1,8 @@
+<div aria-label="top-bar" class="fixed top-0 z-20 flex h-14.5 w-full items-center gap-x-2 border-b border-gray-200 bg-white px-6 py-5">
+  <button aria-label="hamburger-icon" type="button" data-action="sidebar#open" class="-m-2.5 p-2.5 text-gray-700 lg:hidden">
+    <span class="sr-only">Open sidebar</span>
+    <%= inline_svg_tag("menu.svg", class: "size-6") %>
+  </button>
+
+  <%= yield :breadcrumb %>
+</div>
