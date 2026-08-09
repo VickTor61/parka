@@ -1,12 +1,18 @@
 <div aria-label="sidenav" class="flex h-full flex-col gap-y-5 bg-gray-50">
-  <div class="flex items-center gap-2 px-5 pt-5 pb-2">
-    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900 text-sm font-bold text-white">P</span>
-    <span class="text-lg font-semibold text-gray-900">Parka</span>
+  <div class="flex items-center px-5 pt-5 pb-2">
+    <span class="text-lg font-semibold tracking-tight text-stone-950">parka</span>
   </div>
 
   <nav class="flex flex-1 flex-col overflow-y-auto pb-6">
     <ul role="list" class="flex-1 px-3.5">
       <%= render partial: "shared/sidebar/nav", collection: navigation_items, as: :item %>
     </ul>
+
+    <% if authenticated? %>
+      <div class="mt-6 border-t border-gray-200 px-3.5 pt-4">
+        <p class="truncate px-2.5 text-sm font-medium text-gray-900"><%= Current.user.email_address %></p>
+        <%= button_to "Sign out", session_path, method: :delete, class: "mt-1 w-full cursor-pointer rounded-lg px-2.5 py-2 text-left text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900" %>
+      </div>
+    <% end %>
   </nav>
 </div>

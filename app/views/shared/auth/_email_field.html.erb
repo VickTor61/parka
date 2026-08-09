@@ -1,0 +1,4 @@
+<div class="space-y-1.5">
+  <%= form.label :email_address, "Email", class: auth_label_class %>
+  <%= form.email_field :email_address, value: local_assigns[:value], placeholder: "Enter your email", class: auth_input_class, required: true, autofocus: true, autocomplete: "email" %>
+</div>

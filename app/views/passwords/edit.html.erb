@@ -1,0 +1,12 @@
+<% content_for :title, "Update password" %>
+
+<%= render layout: "shared/auth/page", locals: { title: "Update Password", subtitle: "Choose a new password of at least 8 characters." } do %>
+  <%= form_with(url: password_path(params[:token]), method: :put, class: "space-y-8") do |form| %>
+    <div class="space-y-4">
+      <%= render "shared/auth/password_field", form: form, field: :password, label: "New password", placeholder: "At least 8 characters", autocomplete: "new-password", minlength: 8, autofocus: true %>
+      <%= render "shared/auth/password_field", form: form, field: :password_confirmation, label: "Confirm password", placeholder: "Repeat your password", autocomplete: "new-password", minlength: 8 %>
+    </div>
+
+    <%= form.submit "Save password", class: auth_button_class %>
+  <% end %>
+<% end %>

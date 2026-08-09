@@ -1,1 +1,3 @@
-<h1>Plan vs Actual Tracker</h1>
+<%= content_for(:breadcrumb) do %>
+  <%= render "shared/breadcrumb", data: [{ pathname: "Home" }] %>
+<% end %>

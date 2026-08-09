@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-full">
   <head>
     <title><%= content_for(:title) || "Parka" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -16,24 +16,11 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="scheme-light bg-white">
-    <main data-controller="sidebar" class="w-full h-full">
-      <%= render "shared/sidebar/mobile" %>
-      <div class="h-full w-full">
-        <div id="flash_messages"><%= render "shared/flash" %></div>
+  <body class="flex min-h-screen scheme-light flex-col bg-white">
+    <div id="flash_messages"><%= render "shared/flash" %></div>
 
-        <%= render "shared/sidebar/desktop" %>
-
-        <div class="w-full lg:pl-72">
-          <%= render "shared/topbar" %>
-
-          <div
-            class="mt-14.5 w-full grow px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 pb-6"
-          >
-            <%= yield %>
-          </div>
-        </div>
-      </div>
+    <main class="flex-grow">
+      <%= yield %>
     </main>
   </body>
 </html>

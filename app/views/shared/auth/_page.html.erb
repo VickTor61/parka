@@ -1,0 +1,17 @@
+<div class="mx-auto flex min-h-screen w-85 flex-col items-center justify-center space-y-5 px-4 py-10">
+  <span class="text-3xl font-semibold tracking-tight text-stone-950">parka</span>
+
+  <div class="space-y-1 text-center">
+    <h2 class="text-2xl font-semibold tracking-tight text-stone-700"><%= title %></h2>
+
+    <% if local_assigns[:subtitle] %>
+      <span class="text-sm leading-snug tracking-tight text-stone-500"><%= subtitle %></span>
+    <% end %>
+
+    <% if local_assigns[:link_text] %>
+      <%= link_to link_text, link_path, class: auth_link_class %>
+    <% end %>
+  </div>
+
+  <div class="w-full"><%= yield %></div>
+</div>
