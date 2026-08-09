@@ -68,3 +68,9 @@ end
 
 # Backoffice - inline SVG icons
 gem "inline_svg"
+
+# Charts for the dashboard and report
+gem "chartkick"
+
+# CSV import of actuals (no longer a Ruby default gem as of 3.4)
+gem "csv"

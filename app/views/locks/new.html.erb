@@ -1,0 +1,18 @@
+<%= render "shared/modal" do %>
+  <%= form_with model: @period_lock, url: locks_path, data: { turbo_frame: "_top" } do |form| %>
+    <%= render "shared/modal/header", title: "Lock a month" %>
+
+    <div class="space-y-4 px-4 py-4">
+      <%= render "shared/form_errors", record: @period_lock %>
+
+      <div>
+        <%= form.label :month, "Month to lock", class: field_label_class %>
+        <%= form.text_field :month, value: @period_lock.month_label, placeholder: "YYYY-MM", class: field_class, required: true, data: { controller: "month-picker" } %>
+      </div>
+
+      <p class="text-sm text-gray-500">Plans and actuals in this month become read-only. You can unlock it again at any time.</p>
+    </div>
+
+    <%= render "shared/modal/footer", form: form, submit_label: "Lock month" %>
+  <% end %>
+<% end %>

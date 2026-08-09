@@ -1,0 +1,11 @@
+marketing:
+  user: one
+  name: Marketing
+
+payroll:
+  user: one
+  name: Payroll
+
+ops:
+  user: two
+  name: Ops

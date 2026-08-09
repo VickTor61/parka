@@ -22,6 +22,8 @@
       <div class="h-full w-full">
         <div id="flash_messages"><%= render "shared/flash" %></div>
 
+        <%= turbo_frame_tag "modal" %>
+
         <%= render "shared/sidebar/desktop" %>
 
         <div class="w-full lg:pl-72">

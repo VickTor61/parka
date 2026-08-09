@@ -1,0 +1,26 @@
+<%= render "shared/modal" do %>
+  <%= form_with model: @import, scope: :actuals_import, url: actuals_import_path, data: { turbo_frame: "_top" } do |form| %>
+    <%= render "shared/modal/header", title: "Import actuals" %>
+
+    <div class="space-y-4 px-4 py-4">
+      <%= render "shared/form_errors", record: @import %>
+
+      <div>
+        <%= form.label :file, "CSV file", class: field_label_class %>
+        <%= form.file_field :file, accept: ".csv,text/csv", class: "block w-full cursor-pointer rounded-lg border border-gray-300 p-2 text-sm text-gray-700 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-gray-900 file:px-2.5 file:py-1.5 file:text-sm file:font-medium file:text-white", required: true %>
+      </div>
+
+      <div class="rounded-lg bg-gray-50 p-3">
+        <p class="mb-1.5 text-sm text-gray-700">Expected columns — <span class="font-medium">month, category, amount</span> (note is optional):</p>
+        <pre class="overflow-x-auto text-xs text-gray-500">month,category,amount
+2026-01,Marketing,4800
+2026-01,Payroll,20500
+2026-02,Payroll,19800</pre>
+      </div>
+
+      <p class="text-sm text-gray-500">Categories must already exist, months use YYYY-MM, and the whole file is rejected if any row fails.</p>
+    </div>
+
+    <%= render "shared/modal/footer", form: form, submit_label: "Import" %>
+  <% end %>
+<% end %>

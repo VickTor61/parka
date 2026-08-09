@@ -1,3 +1,60 @@
+<% content_for :title, "Home" %>
+
 <%= content_for(:breadcrumb) do %>
   <%= render "shared/breadcrumb", data: [{ pathname: "Home" }] %>
 <% end %>
+
+<%= render "shared/page_header",
+    title: "Overview",
+    description: "Plan versus actual for the last #{HomeController::MONTHS_SHOWN} months." %>
+
+<div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <div class="rounded-md border border-gray-200 p-4">
+    <p class="text-sm text-gray-500">Planned</p>
+    <p class="mt-1 text-xl font-semibold text-gray-900"><%= money(@summary.plan_total) %></p>
+  </div>
+
+  <div class="rounded-md border border-gray-200 p-4">
+    <p class="text-sm text-gray-500">Actual</p>
+    <p class="mt-1 text-xl font-semibold text-gray-900"><%= money(@summary.actual_total) %></p>
+  </div>
+
+  <div class="rounded-md border border-gray-200 p-4">
+    <p class="text-sm text-gray-500">Variance</p>
+    <p class="mt-1 text-xl font-semibold <%= variance_class(@summary.variance) %>"><%= money(@summary.variance) %></p>
+  </div>
+</div>
+
+<div class="mt-4 rounded-md border border-gray-200 p-4">
+  <h2 class="text-sm font-medium text-gray-900">Plan vs actual by month</h2>
+
+  <% if @summary.any_data? %>
+    <div class="mt-4">
+      <%= column_chart @summary.chart_data,
+          height: "320px",
+          library: { plugins: { legend: { position: "bottom" } } },
+          prefix: "$",
+          thousands: "," %>
+    </div>
+  <% else %>
+    <div class="mt-4">
+      <%= render "shared/empty_state",
+          icon: "chart.svg",
+          title: "Nothing to chart yet",
+          description: "Set a target and log some spend to see plan against actual.",
+          action: link_to("Add a target", new_plan_path, class: primary_button_class, data: { turbo_frame: "modal" }) %>
+    </div>
+  <% end %>
+</div>
+
+<div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+  <%= link_to categories_path, class: "flex items-center justify-between rounded-md border border-gray-200 p-4 transition-colors hover:bg-gray-50" do %>
+    <span class="text-sm text-gray-700">Categories</span>
+    <span class="text-sm font-medium text-gray-900"><%= @categories_count %></span>
+  <% end %>
+
+  <%= link_to locks_path, class: "flex items-center justify-between rounded-md border border-gray-200 p-4 transition-colors hover:bg-gray-50" do %>
+    <span class="text-sm text-gray-700">Locked months</span>
+    <span class="text-sm font-medium text-gray-900"><%= @locked_count %></span>
+  <% end %>
+</div>

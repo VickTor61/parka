@@ -10,9 +10,60 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_09_091640) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_09_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "actuals", force: :cascade do |t|
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.date "month", null: false
+    t.text "note"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["category_id"], name: "index_actuals_on_category_id"
+    t.index ["user_id", "category_id", "month"], name: "index_actuals_on_user_id_and_category_id_and_month"
+    t.index ["user_id", "month"], name: "index_actuals_on_user_id_and_month"
+    t.index ["user_id"], name: "index_actuals_on_user_id"
+    t.check_constraint "EXTRACT(day FROM month) = 1::numeric", name: "actuals_month_is_first_of_month"
+    t.check_constraint "amount >= 0::numeric", name: "actuals_amount_not_negative"
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index "user_id, lower((name)::text)", name: "index_categories_on_user_id_and_lower_name", unique: true
+    t.index ["id", "user_id"], name: "index_categories_on_id_and_user_id", unique: true
+    t.index ["user_id"], name: "index_categories_on_user_id"
+  end
+
+  create_table "period_locks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "month", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "month"], name: "index_period_locks_on_user_id_and_month", unique: true
+    t.index ["user_id"], name: "index_period_locks_on_user_id"
+    t.check_constraint "EXTRACT(day FROM month) = 1::numeric", name: "period_locks_month_is_first_of_month"
+  end
+
+  create_table "plans", force: :cascade do |t|
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.date "month", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["category_id"], name: "index_plans_on_category_id"
+    t.index ["user_id", "category_id", "month"], name: "index_plans_on_user_id_and_category_id_and_month", unique: true
+    t.index ["user_id", "month"], name: "index_plans_on_user_id_and_month"
+    t.index ["user_id"], name: "index_plans_on_user_id"
+    t.check_constraint "EXTRACT(day FROM month) = 1::numeric", name: "plans_month_is_first_of_month"
+    t.check_constraint "amount >= 0::numeric", name: "plans_amount_not_negative"
+  end
 
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -152,6 +203,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_091640) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "actuals", "categories", column: ["category_id", "user_id"], primary_key: ["id", "user_id"]
+  add_foreign_key "actuals", "users"
+  add_foreign_key "categories", "users"
+  add_foreign_key "period_locks", "users"
+  add_foreign_key "plans", "categories", column: ["category_id", "user_id"], primary_key: ["id", "user_id"]
+  add_foreign_key "plans", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

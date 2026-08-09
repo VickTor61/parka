@@ -9,9 +9,17 @@
     </ul>
 
     <% if authenticated? %>
-      <div class="mt-6 border-t border-gray-200 px-3.5 pt-4">
-        <p class="truncate px-2.5 text-sm font-medium text-gray-900"><%= Current.user.email_address %></p>
-        <%= button_to "Sign out", session_path, method: :delete, class: "mt-1 w-full cursor-pointer rounded-lg px-2.5 py-2 text-left text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900" %>
+      <div class="mt-6 px-3.5">
+        <div class="flex items-center gap-x-2 rounded-lg border border-gray-200 bg-white px-2.5 py-2">
+          <div class="min-w-0 flex-1">
+            <p class="text-xs text-gray-500">Signed in as</p>
+            <p class="truncate text-sm font-medium text-gray-900" title="<%= Current.user.email_address %>"><%= Current.user.email_address %></p>
+          </div>
+
+          <%= button_to session_path, method: :delete, class: "shrink-0 cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900", aria: { label: "Sign out" } do %>
+            <%= inline_svg_tag("log-out.svg", class: "size-4") %>
+          <% end %>
+        </div>
       </div>
     <% end %>
   </nav>

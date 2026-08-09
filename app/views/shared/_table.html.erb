@@ -1,0 +1,15 @@
+<div class="mt-4 overflow-auto rounded-md border border-gray-200">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <% Array(columns).each do |column| %>
+          <th scope="col" class="px-4 py-2.5 text-left text-sm font-normal whitespace-nowrap text-gray-500 <%= column[:class] %>"><%= column[:label] %></th>
+        <% end %>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-gray-200 bg-white">
+      <%= yield %>
+    </tbody>
+  </table>
+</div>
