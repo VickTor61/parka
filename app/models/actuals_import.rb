@@ -4,12 +4,24 @@ class ActualsImport
   include ActiveModel::Model
 
   REQUIRED_HEADERS = %w[ month category amount ].freeze
+  OPTIONAL_HEADERS = %w[ note ].freeze
   MAX_ROWS = 5_000
+  MAX_BYTES = 2.megabytes
+
+  def self.template_csv
+    CSV.generate do |csv|
+      csv << REQUIRED_HEADERS + OPTIONAL_HEADERS
+      csv << [ "2026-01", "Marketing", "4800", "Q1 ad campaign" ]
+      csv << [ "2026-01", "Payroll", "20500", "" ]
+      csv << [ "2026-02", "Payroll", "19800", "" ]
+    end
+  end
 
   attr_accessor :file
   attr_reader :imported_count
 
   validates :file, presence: { message: "is required" }
+  validate :file_within_size_limit
 
   def initialize(user:, file: nil)
     @user = user
@@ -29,6 +41,12 @@ class ActualsImport
 
   private
     attr_reader :user
+
+    def file_within_size_limit
+      return if file.blank? || !file.respond_to?(:size)
+
+      errors.add(:file, "must be #{ActiveSupport::NumberHelper.number_to_human_size(MAX_BYTES)} or smaller") if file.size > MAX_BYTES
+    end
 
     def parse
       table = CSV.parse(read_file, headers: true)

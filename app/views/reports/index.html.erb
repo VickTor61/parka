@@ -1,0 +1,60 @@
+<% content_for :title, "Report" %>
+
+<%= content_for(:breadcrumb) do %>
+  <%= render "shared/breadcrumb", data: [{ pathname: "Report" }] %>
+<% end %>
+
+<%= render "shared/page_header",
+    title: "Report",
+    description: "Plan vs actual by category and month, with variance." %>
+
+<%= render "filters", report: @report, categories: @categories %>
+
+<%= turbo_frame_tag "report_table" do %>
+  <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="rounded-md border border-gray-200 p-4">
+      <p class="text-sm text-gray-500">Planned</p>
+      <p class="mt-1 text-xl font-semibold text-gray-900"><%= money(@report.totals[:plan]) %></p>
+    </div>
+
+    <div class="rounded-md border border-gray-200 p-4">
+      <p class="text-sm text-gray-500">Actual</p>
+      <p class="mt-1 text-xl font-semibold text-gray-900"><%= money(@report.totals[:actual]) %></p>
+    </div>
+
+    <div class="rounded-md border border-gray-200 p-4">
+      <p class="text-sm text-gray-500">Variance</p>
+      <p class="mt-1 flex items-baseline gap-2 text-xl font-semibold <%= variance_class(@report.variance) %>">
+        <%= signed_money(@report.variance) %>
+        <span class="text-sm font-medium">(<%= signed_percentage(@report.variance_percentage) %>)</span>
+      </p>
+    </div>
+  </div>
+
+  <% if @report.any_rows? %>
+    <div class="mt-4 rounded-md border border-gray-200 p-4">
+      <h2 class="text-sm font-medium text-gray-900">Category totals — <%= @report.range_label %></h2>
+
+      <div class="mt-4">
+        <%= column_chart @report.chart_data,
+            height: "300px",
+            library: { plugins: { legend: { position: "bottom" } } },
+            prefix: "$",
+            thousands: "," %>
+      </div>
+
+      <p class="mt-2 text-xs text-gray-400">Months with no logged entries contribute nothing to the actual total.</p>
+    </div>
+
+    <%= render "table", rows: @rows, locked_months: @locked_months %>
+    <%= render "shared/pagination", pagy: @pagy, url: reports_path, frame: "report_table" %>
+  <% else %>
+    <div class="mt-4">
+      <%= render "shared/empty_state",
+          icon: "chart.svg",
+          title: @report.filtered? ? "No matching results" : "Nothing to compare yet",
+          description: @report.filtered? ? "No categories match this filter." : "Set targets and log spend to see the comparison.",
+          action: link_to("Add a target", new_plan_path, class: primary_button_class, data: { turbo_frame: "modal" }) %>
+    </div>
+  <% end %>
+<% end %>

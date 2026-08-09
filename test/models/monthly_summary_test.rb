@@ -40,6 +40,33 @@ class MonthlySummaryTest < ActiveSupport::TestCase
     assert_equal 25_000, @summary.rows.first.plan
   end
 
+  test "with no range it spans everything the user has recorded" do
+    @user.plans.create!(category: categories(:marketing), month: "2025-11", amount: 10)
+    @user.actuals.create!(category: categories(:marketing), month: "2026-04", amount: 5)
+    summary = MonthlySummary.new(user: @user)
+
+    assert_equal Date.new(2025, 11, 1), summary.from
+    assert_equal Date.new(2026, 4, 1), summary.to
+    assert_equal 6, summary.rows.size
+    assert_equal "Nov 2025 – Apr 2026", summary.range_label
+  end
+
+  test "a user with no data still renders without erroring" do
+    empty = MonthlySummary.new(user: users(:two))
+
+    assert_not empty.any_data?
+    assert_equal 1, empty.rows.size
+    assert_equal 0, empty.plan_total
+    assert_nil empty.variance_percentage
+  end
+
+  test "variance percentage is computed from the totals" do
+    summary = MonthlySummary.new(user: @user, from: Date.new(2026, 1, 1), to: Date.new(2026, 1, 1))
+
+    assert_equal 300, summary.variance
+    assert_in_delta 1.2, summary.variance_percentage, 0.001
+  end
+
   test "chart data carries a plan and an actual series" do
     assert_equal [ "Plan", "Actual" ], @summary.chart_data.map { |series| series[:name] }
     assert_equal [ "Jan 2026", "Feb 2026", "Mar 2026" ], @summary.chart_data.first[:data].keys

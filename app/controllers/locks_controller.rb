@@ -1,8 +1,12 @@
 class LocksController < ApplicationController
   def index
     @year = (params[:year].presence || Date.current.year).to_i
-    @period_locks = Current.user.period_locks.ordered
     @locks_by_month = Current.user.period_locks.index_by(&:month)
+
+    @q = Current.user.period_locks.ransack(search_params)
+    @q.sorts = "month desc" if @q.sorts.empty?
+
+    @pagy, @period_locks = pagy(@q.result, limit: limit_param)
   end
 
   def new
@@ -13,7 +17,7 @@ class LocksController < ApplicationController
     @period_lock = Current.user.period_locks.new(period_lock_params)
 
     if @period_lock.save
-      redirect_to locks_path(year: @period_lock.month.year), notice: "#{@period_lock.month_label} is now locked."
+      redirect_out_of_frame locks_path(year: @period_lock.month.year), notice: "#{@period_lock.month_label} is now locked."
     else
       render :new, status: :unprocessable_content
     end

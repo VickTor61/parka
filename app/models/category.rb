@@ -8,8 +8,13 @@ class Category < ApplicationRecord
   validates :name, presence: true, length: { maximum: 60 }, uniqueness: { scope: :user_id, case_sensitive: false }
 
   scope :ordered, -> { order(:name) }
+  scope :name_matching, ->(query) { where("categories.name ILIKE ?", "%#{sanitize_sql_like(query.to_s.strip)}%") }
 
   def self.ransackable_attributes(_auth_object = nil)
-    %w[ name ]
+    %w[ name created_at ]
+  end
+
+  def self.ransackable_associations(_auth_object = nil)
+    []
   end
 end

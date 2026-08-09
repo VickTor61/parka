@@ -33,6 +33,51 @@ module UiHelper
     end
   end
 
+  def report_row_class
+    "border-b border-slate-200 antialiased transition-colors duration-100 ease-in last:border-transparent hover:bg-gray-100"
+  end
+
+  def report_cell_class
+    "px-4 py-4 text-sm whitespace-nowrap text-gray-700"
+  end
+
+  def rows_per_page_options
+    [ 10, 20, 30, 40, 50 ]
+  end
+
+  def search_chips(definitions)
+    query = params[:q].to_h
+
+    definitions.filter_map do |key, definition|
+      value = query[key.to_s]
+      next if value.blank?
+
+      display = definition[:format] ? definition[:format].call(value) : value
+      next if display.blank?
+
+      { label: definition[:label], value: display, without: without_search_key(key) }
+    end
+  end
+
+  def without_param(key)
+    url_for(request.query_parameters.except(key.to_s, "page").merge(only_path: true))
+  end
+
+  def without_search_key(key)
+    query = params[:q].to_h.except(key.to_s).compact_blank
+    other = request.query_parameters.except("q", "page")
+
+    url_for((query.any? ? other.merge("q" => query) : other).merge(only_path: true))
+  end
+
+  def filter_chip(label, value, removal_path)
+    tag.span(class: "inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-gray-50 py-1 pr-1 pl-2.5 text-xs font-medium text-gray-700") do
+      concat tag.span("#{label}: ", class: "text-gray-500")
+      concat value
+      concat link_to(inline_svg_tag("x.svg", class: "size-3"), removal_path, class: "rounded p-0.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-900", aria: { label: "Remove #{label} filter" })
+    end
+  end
+
   def blank_cell
     tag.span("—", class: "text-gray-400")
   end
@@ -47,6 +92,16 @@ module UiHelper
     return blank_cell if value.nil?
 
     "#{'+' if value.positive?}#{number_to_percentage(value, precision: 2)}"
+  end
+
+  def fiscal_year_options
+    current = Date.current.year
+
+    ((current - 5)..(current + 1)).to_a.reverse
+  end
+
+  def fiscal_start_month_options
+    (1..12).map { |month| [ "Starts #{Date::MONTHNAMES[month]}", month ] }
   end
 
   def quarter_ranges(year)

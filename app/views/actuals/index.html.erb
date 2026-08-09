@@ -6,50 +6,81 @@
 
 <%= render "shared/page_header",
     title: "Actuals",
-    description: "What you actually spent, logged per category and month.",
-    action: capture {
-      concat link_to(new_actuals_import_path, class: "#{secondary_button_class} mr-2", data: { turbo_frame: "modal" }) {
-        inline_svg_tag("upload.svg", class: "size-4") + "Import CSV"
-      }
-      concat link_to(new_actual_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
-        inline_svg_tag("plus.svg", class: "size-4") + "Add entry"
-      }
-    } %>
+    description: "What you actually spent, logged per category and month." %>
 
-<% if @actuals.empty? %>
-  <div class="mt-6">
-    <%= render "shared/empty_state",
-        icon: "wallet.svg",
-        title: "Nothing logged yet",
-        description: "Log an entry or import a CSV to start tracking spend.",
-        action: link_to(new_actual_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
+<% chips = search_chips(
+     category_name_or_note_cont: { label: "Search" },
+     category_id_eq: { label: "Category", format: ->(value) { @categories.find { |category| category.id.to_s == value.to_s }&.name } }
+   ) %>
+<% chips << { label: "Status", value: params[:status].capitalize, without: without_param(:status) } if params[:status].present? %>
+
+<%= search_form_for @q, url: actuals_path, class: "contents", data: { controller: "search", turbo_action: "replace", turbo_frame: "actuals_table" } do |form| %>
+  <%= render "shared/toolbar",
+      form: form,
+      search_key: :category_name_or_note_cont,
+      search_placeholder: "Search note or category",
+      frame: "actuals_table",
+      reset_path: actuals_path,
+      active_filters: chips,
+      filters: capture {
+        concat(content_tag(:div) do
+          concat form.label(:category_id_eq, "Category", class: field_label_class)
+          concat form.select(:category_id_eq, options_from_collection_for_select(@categories, :id, :name, params.dig(:q, :category_id_eq)), { include_blank: "All categories" }, class: field_class)
+        end)
+
+        concat(content_tag(:div, class: "mt-3") do
+          concat label_tag(:status, "Status", class: field_label_class)
+          concat select_tag(:status, options_for_select([ [ "All", "" ], [ "Open", "open" ], [ "Locked", "locked" ] ], params[:status]), class: field_class)
+        end)
+      },
+      action: capture {
+        concat link_to(new_actuals_import_path, class: "#{secondary_button_class} mr-2", data: { turbo_frame: "modal" }) {
+          inline_svg_tag("upload.svg", class: "size-4") + "Import CSV"
+        }
+        concat link_to(new_actual_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
           inline_svg_tag("plus.svg", class: "size-4") + "Add entry"
-        } %>
-  </div>
-<% else %>
-  <%= render layout: "shared/table", locals: { columns: [{ label: "Month" }, { label: "Category" }, { label: "Amount" }, { label: "Note" }, { label: "Status" }, { label: "", class: "w-24" }] } do %>
-    <% @actuals.each do |actual| %>
-      <% locked = @locked_months.include?(actual.month) %>
-      <tr class="hover:bg-gray-50">
-        <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-900"><%= month_label(actual.month) %></td>
-        <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900"><%= actual.category.name %></td>
-        <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-900"><%= money(actual.amount) %></td>
-        <td class="max-w-xs truncate px-4 py-4 text-sm text-gray-500"><%= actual.note.presence || "—" %></td>
-        <td class="px-4 py-4 text-sm whitespace-nowrap"><%= lock_badge(locked) %></td>
-        <td class="px-4 py-4 text-sm whitespace-nowrap">
-          <% unless locked %>
-            <div class="flex items-center justify-end gap-1">
-              <%= link_to edit_actual_path(actual), class: "rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900", data: { turbo_frame: "modal" }, aria: { label: "Edit entry" } do %>
-                <%= inline_svg_tag("pencil.svg", class: "size-4") %>
-              <% end %>
+        }
+      } %>
+<% end %>
 
-              <%= button_to actual_path(actual), method: :delete, class: "cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-red-600", form: { data: { turbo_confirm: "Delete this entry?" } }, aria: { label: "Delete entry" } do %>
-                <%= inline_svg_tag("trash.svg", class: "size-4") %>
-              <% end %>
-            </div>
-          <% end %>
-        </td>
-      </tr>
+<%= turbo_frame_tag "actuals_table" do %>
+  <% if @actuals.empty? %>
+    <div class="mt-4">
+      <%= render "shared/empty_state",
+          icon: "wallet.svg",
+          title: chips.any? ? "No matching entries" : "Nothing logged yet",
+          description: chips.any? ? "No entry matches this filter." : "Log an entry or import a CSV to start tracking spend.",
+          action: link_to(new_actual_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
+            inline_svg_tag("plus.svg", class: "size-4") + "Add entry"
+          } %>
+    </div>
+  <% else %>
+    <%= render layout: "shared/table", locals: { columns: [{ label: "Month" }, { label: "Category" }, { label: "Amount" }, { label: "Note" }, { label: "Status" }, { label: "", class: "w-24" }] } do %>
+      <% @actuals.each do |actual| %>
+        <% locked = @locked_months.include?(actual.month) %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-900"><%= month_label(actual.month) %></td>
+          <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900"><%= actual.category.name %></td>
+          <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-900"><%= money(actual.amount) %></td>
+          <td class="max-w-xs truncate px-4 py-4 text-sm text-gray-500"><%= actual.note.presence || "—" %></td>
+          <td class="px-4 py-4 text-sm whitespace-nowrap"><%= lock_badge(locked) %></td>
+          <td class="px-4 py-4 text-sm whitespace-nowrap">
+            <% unless locked %>
+              <div class="flex items-center justify-end gap-1">
+                <%= link_to edit_actual_path(actual), class: "rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900", data: { turbo_frame: "modal" }, aria: { label: "Edit entry" } do %>
+                  <%= inline_svg_tag("pencil.svg", class: "size-4") %>
+                <% end %>
+
+                <%= button_to actual_path(actual), method: :delete, class: "cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-red-600", form: { data: { turbo_confirm: "Delete this entry?", turbo_frame: "_top" } }, aria: { label: "Delete entry" } do %>
+                  <%= inline_svg_tag("trash.svg", class: "size-4") %>
+                <% end %>
+              </div>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
     <% end %>
+
+    <%= render "shared/pagination", pagy: @pagy, url: actuals_path, frame: "actuals_table" %>
   <% end %>
 <% end %>
