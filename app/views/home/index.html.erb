@@ -6,23 +6,26 @@
 
 <%= render "shared/page_header",
     title: "Overview",
-    description: "Plan versus actual for the last #{HomeController::MONTHS_SHOWN} months." %>
+    description: @summary.any_data? ? "Plan versus actual across everything you have recorded — #{@summary.range_label}." : "Plan versus actual across everything you have recorded." %>
 
 <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-  <div class="rounded-md border border-gray-200 p-4">
+  <%= link_to plans_path, class: "rounded-md border border-gray-200 p-4 transition-colors hover:bg-gray-50" do %>
     <p class="text-sm text-gray-500">Planned</p>
     <p class="mt-1 text-xl font-semibold text-gray-900"><%= money(@summary.plan_total) %></p>
-  </div>
+  <% end %>
 
-  <div class="rounded-md border border-gray-200 p-4">
+  <%= link_to actuals_path, class: "rounded-md border border-gray-200 p-4 transition-colors hover:bg-gray-50" do %>
     <p class="text-sm text-gray-500">Actual</p>
     <p class="mt-1 text-xl font-semibold text-gray-900"><%= money(@summary.actual_total) %></p>
-  </div>
+  <% end %>
 
-  <div class="rounded-md border border-gray-200 p-4">
+  <%= link_to reports_path, class: "rounded-md border border-gray-200 p-4 transition-colors hover:bg-gray-50" do %>
     <p class="text-sm text-gray-500">Variance</p>
-    <p class="mt-1 text-xl font-semibold <%= variance_class(@summary.variance) %>"><%= money(@summary.variance) %></p>
-  </div>
+    <p class="mt-1 text-xl font-semibold <%= variance_class(@summary.variance) %>">
+      <%= signed_money(@summary.variance) %>
+      <span class="text-sm font-medium">(<%= signed_percentage(@summary.variance_percentage) %>)</span>
+    </p>
+  <% end %>
 </div>
 
 <div class="mt-4 rounded-md border border-gray-200 p-4">

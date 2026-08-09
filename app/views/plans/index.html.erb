@@ -6,44 +6,85 @@
 
 <%= render "shared/page_header",
     title: "Plans",
-    description: "Monthly spending targets per category.",
-    action: link_to(new_plan_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
-      inline_svg_tag("plus.svg", class: "size-4") + "Add target"
-    } %>
+    description: "Monthly spending targets per category." %>
 
-<% if @plans.empty? %>
-  <div class="mt-6">
-    <%= render "shared/empty_state",
-        icon: "target.svg",
-        title: "No targets set",
-        description: "Set a monthly target for a category to compare against actual spend.",
-        action: link_to(new_plan_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
-          inline_svg_tag("plus.svg", class: "size-4") + "Add target"
-        } %>
-  </div>
-<% else %>
-  <%= render layout: "shared/table", locals: { columns: [{ label: "Month" }, { label: "Category" }, { label: "Target" }, { label: "Status" }, { label: "", class: "w-24" }] } do %>
-    <% @plans.each do |plan| %>
-      <% locked = @locked_months.include?(plan.month) %>
-      <tr class="hover:bg-gray-50">
-        <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-900"><%= month_label(plan.month) %></td>
-        <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900"><%= plan.category.name %></td>
-        <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-900"><%= money(plan.amount) %></td>
-        <td class="px-4 py-4 text-sm whitespace-nowrap"><%= lock_badge(locked) %></td>
-        <td class="px-4 py-4 text-sm whitespace-nowrap">
-          <% unless locked %>
-            <div class="flex items-center justify-end gap-1">
-              <%= link_to edit_plan_path(plan), class: "rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900", data: { turbo_frame: "modal" }, aria: { label: "Edit target" } do %>
-                <%= inline_svg_tag("pencil.svg", class: "size-4") %>
-              <% end %>
+<% chips = search_chips(
+     category_name_cont: { label: "Search" },
+     category_id_eq: { label: "Category", format: ->(value) { @categories.find { |category| category.id.to_s == value.to_s }&.name } },
+     amount_gteq: { label: "Min", format: ->(value) { money(value) } },
+     amount_lteq: { label: "Max", format: ->(value) { money(value) } }
+   ) %>
+<% chips << { label: "Status", value: params[:status].capitalize, without: without_param(:status) } if params[:status].present? %>
 
-              <%= button_to plan_path(plan), method: :delete, class: "cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-red-600", form: { data: { turbo_confirm: "Delete this target?" } }, aria: { label: "Delete target" } do %>
-                <%= inline_svg_tag("trash.svg", class: "size-4") %>
-              <% end %>
-            </div>
-          <% end %>
-        </td>
-      </tr>
+<%= search_form_for @q, url: plans_path, class: "contents", data: { controller: "search", turbo_action: "replace", turbo_frame: "plans_table" } do |form| %>
+  <%= render "shared/toolbar",
+      form: form,
+      search_key: :category_name_cont,
+      search_placeholder: "Search category",
+      frame: "plans_table",
+      reset_path: plans_path,
+      active_filters: chips,
+      filters: capture {
+        concat(content_tag(:div) do
+          concat label_tag(:status, "Status", class: field_label_class)
+          concat select_tag(:status, options_for_select([ [ "All", "" ], [ "Open", "open" ], [ "Locked", "locked" ] ], params[:status]), class: field_class)
+        end)
+
+        concat(content_tag(:div, class: "mt-3") do
+          concat label_tag(nil, "Amount range", class: field_label_class)
+          concat(content_tag(:div, class: "grid grid-cols-2 gap-2") do
+            concat form.number_field(:amount_gteq, step: "0.01", min: 0, placeholder: "Min", class: field_class)
+            concat form.number_field(:amount_lteq, step: "0.01", min: 0, placeholder: "Max", class: field_class)
+          end)
+        end)
+
+        concat(content_tag(:div, class: "mt-3") do
+          concat form.label(:category_id_eq, "Category", class: field_label_class)
+          concat form.select(:category_id_eq, options_from_collection_for_select(@categories, :id, :name, params.dig(:q, :category_id_eq)), { include_blank: "All categories" }, class: field_class)
+        end)
+      },
+      action: link_to(new_plan_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
+        inline_svg_tag("plus.svg", class: "size-4") + "Add target"
+      } %>
+<% end %>
+
+<%= turbo_frame_tag "plans_table" do %>
+  <% if @plans.empty? %>
+    <div class="mt-4">
+      <%= render "shared/empty_state",
+          icon: "target.svg",
+          title: chips.any? ? "No matching targets" : "No targets set",
+          description: chips.any? ? "No target matches this filter." : "Set a monthly target for a category to compare against actual spend.",
+          action: link_to(new_plan_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
+            inline_svg_tag("plus.svg", class: "size-4") + "Add target"
+          } %>
+    </div>
+  <% else %>
+    <%= render layout: "shared/table", locals: { columns: [{ label: "Month" }, { label: "Category" }, { label: "Target" }, { label: "Status" }, { label: "", class: "w-24" }] } do %>
+      <% @plans.each do |plan| %>
+        <% locked = @locked_months.include?(plan.month) %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-900"><%= month_label(plan.month) %></td>
+          <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900"><%= plan.category.name %></td>
+          <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-900"><%= money(plan.amount) %></td>
+          <td class="px-4 py-4 text-sm whitespace-nowrap"><%= lock_badge(locked) %></td>
+          <td class="px-4 py-4 text-sm whitespace-nowrap">
+            <% unless locked %>
+              <div class="flex items-center justify-end gap-1">
+                <%= link_to edit_plan_path(plan), class: "rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900", data: { turbo_frame: "modal" }, aria: { label: "Edit target" } do %>
+                  <%= inline_svg_tag("pencil.svg", class: "size-4") %>
+                <% end %>
+
+                <%= button_to plan_path(plan), method: :delete, class: "cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-red-600", form: { data: { turbo_confirm: "Delete this target?", turbo_frame: "_top" } }, aria: { label: "Delete target" } do %>
+                  <%= inline_svg_tag("trash.svg", class: "size-4") %>
+                <% end %>
+              </div>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
     <% end %>
+
+    <%= render "shared/pagination", pagy: @pagy, url: plans_path, frame: "plans_table" %>
   <% end %>
 <% end %>

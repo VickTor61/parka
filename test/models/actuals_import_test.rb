@@ -60,6 +60,28 @@ class ActualsImportTest < ActiveSupport::TestCase
     assert_includes import.errors.full_messages, "Row 3: Amount must be greater than or equal to 0"
   end
 
+  test "the template lists the expected columns and parses cleanly" do
+    rows = CSV.parse(ActualsImport.template_csv)
+
+    assert_equal %w[ month category amount note ], rows.first
+    assert_equal [ "2026-01", "Marketing", "4800", "Q1 ad campaign" ], rows.second
+  end
+
+  test "the template can be imported as-is once the categories exist" do
+    import = ActualsImport.new(user: @user, file: StringIO.new(ActualsImport.template_csv))
+
+    assert import.save, import.errors.full_messages.to_sentence
+    assert_equal 3, import.imported_count
+  end
+
+  test "a file over the size limit is rejected" do
+    oversized = StringIO.new("x" * (ActualsImport::MAX_BYTES + 1))
+    import = ActualsImport.new(user: @user, file: oversized)
+
+    assert_not import.save
+    assert_includes import.errors.full_messages.first, "or smaller"
+  end
+
   test "a file is required" do
     import = ActualsImport.new(user: @user)
 

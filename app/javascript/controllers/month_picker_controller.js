@@ -6,6 +6,7 @@ export default class extends Controller {
   connect() {
     this.picker = flatpickr(this.element, {
       allowInput: true,
+      disableMobile: true,
       plugins: [
         new monthSelectPlugin({
           shorthand: true,

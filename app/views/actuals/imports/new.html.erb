@@ -1,5 +1,5 @@
 <%= render "shared/modal" do %>
-  <%= form_with model: @import, scope: :actuals_import, url: actuals_import_path, data: { turbo_frame: "_top" } do |form| %>
+  <%= form_with model: @import, scope: :actuals_import, url: actuals_import_path do |form| %>
     <%= render "shared/modal/header", title: "Import actuals" %>
 
     <div class="space-y-4 px-4 py-4">
@@ -8,17 +8,43 @@
       <div>
         <%= form.label :file, "CSV file", class: field_label_class %>
         <%= form.file_field :file, accept: ".csv,text/csv", class: "block w-full cursor-pointer rounded-lg border border-gray-300 p-2 text-sm text-gray-700 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-gray-900 file:px-2.5 file:py-1.5 file:text-sm file:font-medium file:text-white", required: true %>
+        <p class="mt-1.5 text-xs text-gray-400">
+          Up to <%= number_to_human_size(ActualsImport::MAX_BYTES) %> and <%= number_with_delimiter(ActualsImport::MAX_ROWS) %> rows.
+        </p>
       </div>
 
-      <div class="rounded-lg bg-gray-50 p-3">
-        <p class="mb-1.5 text-sm text-gray-700">Expected columns — <span class="font-medium">month, category, amount</span> (note is optional):</p>
-        <pre class="overflow-x-auto text-xs text-gray-500">month,category,amount
-2026-01,Marketing,4800
-2026-01,Payroll,20500
-2026-02,Payroll,19800</pre>
-      </div>
+      <%= link_to actuals_import_template_path(format: :csv), class: "flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50", data: { turbo: false } do %>
+        <span class="min-w-0">
+          <span class="block text-sm font-medium text-gray-900">Download the template</span>
+          <span class="block text-xs text-gray-500">A ready-made CSV with the right columns and example rows.</span>
+        </span>
 
-      <p class="text-sm text-gray-500">Categories must already exist, months use YYYY-MM, and the whole file is rejected if any row fails.</p>
+        <%= inline_svg_tag("upload.svg", class: "size-4 shrink-0 rotate-180 text-gray-500") %>
+      <% end %>
+
+      <dl class="space-y-1.5 rounded-lg bg-gray-50 p-3 text-xs">
+        <div class="flex gap-2">
+          <dt class="w-20 shrink-0 text-gray-500">Columns</dt>
+          <dd class="text-gray-900"><span class="font-medium">month, category, amount</span> — note is optional</dd>
+        </div>
+
+        <div class="flex gap-2">
+          <dt class="w-20 shrink-0 text-gray-500">Month</dt>
+          <dd class="text-gray-900">YYYY-MM, e.g. 2026-01</dd>
+        </div>
+
+        <div class="flex gap-2">
+          <dt class="w-20 shrink-0 text-gray-500">Category</dt>
+          <dd class="text-gray-900">Must already exist</dd>
+        </div>
+
+        <div class="flex gap-2">
+          <dt class="w-20 shrink-0 text-gray-500">Amount</dt>
+          <dd class="text-gray-900">A number, zero or above</dd>
+        </div>
+      </dl>
+
+      <p class="text-sm text-gray-500">If any row fails, nothing is imported — fix the file and try again.</p>
     </div>
 
     <%= render "shared/modal/footer", form: form, submit_label: "Import" %>

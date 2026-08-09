@@ -5,16 +5,23 @@ class MonthlySummary
     end
 
     def logged?
-      actual.positive? || actual.negative?
+      !actual.zero?
     end
   end
 
-  attr_reader :from, :to
-
-  def initialize(user:, from:, to:)
+  def initialize(user:, from: nil, to: nil)
     @user = user
-    @from = from.beginning_of_month
-    @to = to.beginning_of_month
+    @given_from = from&.beginning_of_month
+    @given_to = to&.beginning_of_month
+  end
+
+  # With no range given the summary covers everything the user has ever recorded.
+  def from
+    @from ||= @given_from || earliest || Date.current.beginning_of_month
+  end
+
+  def to
+    @to ||= @given_to || latest || Date.current.beginning_of_month
   end
 
   def rows
@@ -35,6 +42,12 @@ class MonthlySummary
     actual_total - plan_total
   end
 
+  def variance_percentage
+    return if plan_total.zero?
+
+    (variance / plan_total) * 100
+  end
+
   def chart_data
     [
       { name: "Plan", data: rows.to_h { |row| [ label(row.month), row.plan ] }, library: { backgroundColor: "#d6d3d1", borderColor: "#d6d3d1" } },
@@ -46,8 +59,22 @@ class MonthlySummary
     rows.any? { |row| row.plan.positive? || row.logged? }
   end
 
+  def range_label
+    return label(from) if from == to
+
+    "#{label(from)} – #{label(to)}"
+  end
+
   private
     attr_reader :user
+
+    def earliest
+      [ user.plans.minimum(:month), user.actuals.minimum(:month) ].compact.min
+    end
+
+    def latest
+      [ user.plans.maximum(:month), user.actuals.maximum(:month) ].compact.max
+    end
 
     def months
       current = from

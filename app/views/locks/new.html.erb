@@ -1,5 +1,5 @@
 <%= render "shared/modal" do %>
-  <%= form_with model: @period_lock, url: locks_path, data: { turbo_frame: "_top" } do |form| %>
+  <%= form_with model: @period_lock, url: locks_path do |form| %>
     <%= render "shared/modal/header", title: "Lock a month" %>
 
     <div class="space-y-4 px-4 py-4">

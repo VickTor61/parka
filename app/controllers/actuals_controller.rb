@@ -3,8 +3,13 @@ class ActualsController < ApplicationController
   before_action :set_categories, only: %i[ new create edit update ]
 
   def index
-    @actuals = Current.user.actuals.includes(:category).ordered
     @locked_months = Current.user.period_locks.pluck(:month).to_set
+    @categories = Current.user.categories.ordered
+
+    @q = by_status(Current.user.actuals.includes(:category)).ransack(search_params)
+    @q.sorts = [ "month desc", "created_at desc" ] if @q.sorts.empty?
+
+    @pagy, @actuals = pagy(@q.result, limit: limit_param)
   end
 
   def new
@@ -15,7 +20,7 @@ class ActualsController < ApplicationController
     @actual = Current.user.actuals.new(actual_params)
 
     if @actual.save
-      redirect_to actuals_path, notice: "Entry logged."
+      redirect_out_of_frame actuals_path, notice: "Entry logged."
     else
       render :new, status: :unprocessable_content
     end
@@ -26,7 +31,7 @@ class ActualsController < ApplicationController
 
   def update
     if @actual.update(actual_params)
-      redirect_to actuals_path, notice: "Entry updated."
+      redirect_out_of_frame actuals_path, notice: "Entry updated."
     else
       render :edit, status: :unprocessable_content
     end
@@ -41,6 +46,14 @@ class ActualsController < ApplicationController
   end
 
   private
+    def by_status(scope)
+      case params[:status]
+      when "locked" then scope.where(month: @locked_months.to_a)
+      when "open" then scope.where.not(month: @locked_months.to_a)
+      else scope
+      end
+    end
+
     def set_actual
       @actual = Current.user.actuals.find(params[:id])
     end

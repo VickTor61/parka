@@ -6,12 +6,9 @@
 
 <%= render "shared/page_header",
     title: "Locks",
-    description: "Locked months are read-only — plans and actuals in them cannot be added, edited or deleted.",
-    action: link_to(new_lock_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
-      inline_svg_tag("lock.svg", class: "size-4") + "Lock a month"
-    } %>
+    description: "Locked months are read-only — plans and actuals in them cannot be added, edited or deleted." %>
 
-<div class="mt-6 rounded-md border border-gray-200 p-4">
+<div class="mt-4 rounded-md border border-gray-200 p-4">
   <div class="mb-4 flex items-center justify-between">
     <h2 class="text-sm font-medium text-gray-900"><%= @year %></h2>
 
@@ -43,16 +40,64 @@
   <p class="mt-4 text-xs text-gray-500">Click a month to lock or unlock it. Locking granularity is one month.</p>
 </div>
 
-<% if @period_locks.any? %>
-  <%= render layout: "shared/table", locals: { columns: [{ label: "Locked month" }, { label: "Locked on" }, { label: "", class: "w-24" }] } do %>
-    <% @period_locks.each do |period_lock| %>
-      <tr class="hover:bg-gray-50">
-        <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900"><%= month_label(period_lock.month) %></td>
-        <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-500"><%= period_lock.created_at.strftime("%b %d, %Y") %></td>
-        <td class="px-4 py-4 text-right text-sm whitespace-nowrap">
-          <%= button_to "Unlock", lock_path(period_lock), method: :delete, class: "cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline" %>
-        </td>
-      </tr>
+<% chips = search_chips(
+     month_text_cont: { label: "Search" },
+     month_gteq: { label: "From", format: ->(value) { month_label(MonthlyPeriod.cast(value)) } },
+     month_lteq: { label: "To", format: ->(value) { month_label(MonthlyPeriod.cast(value)) } }
+   ) %>
+
+<%= search_form_for @q, url: locks_path, class: "contents", data: { controller: "search", turbo_action: "replace", turbo_frame: "locks_table" } do |form| %>
+  <%= hidden_field_tag :year, @year, id: nil %>
+
+  <%= render "shared/toolbar",
+      form: form,
+      search_key: :month_text_cont,
+      search_placeholder: "Search YYYY-MM",
+      frame: "locks_table",
+      reset_path: locks_path(year: @year),
+      active_filters: chips,
+      filters: capture {
+        concat(content_tag(:div, class: "grid grid-cols-2 gap-2") do
+          concat(content_tag(:div) do
+            concat form.label(:month_gteq, "From", class: field_label_class)
+            concat form.text_field(:month_gteq, value: params.dig(:q, :month_gteq), placeholder: "YYYY-MM", class: field_class, data: { controller: "month-picker" })
+          end)
+
+          concat(content_tag(:div) do
+            concat form.label(:month_lteq, "To", class: field_label_class)
+            concat form.text_field(:month_lteq, value: params.dig(:q, :month_lteq), placeholder: "YYYY-MM", class: field_class, data: { controller: "month-picker" })
+          end)
+        end)
+      },
+      action: link_to(new_lock_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
+        inline_svg_tag("lock.svg", class: "size-4") + "Lock a month"
+      } %>
+<% end %>
+
+<%= turbo_frame_tag "locks_table" do %>
+  <% if @period_locks.any? %>
+    <%= render layout: "shared/table", locals: { columns: [{ label: "Locked month" }, { label: "Locked on" }, { label: "", class: "w-24" }] } do %>
+      <% @period_locks.each do |period_lock| %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900"><%= month_label(period_lock.month) %></td>
+          <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-500"><%= period_lock.created_at.strftime("%b %d, %Y") %></td>
+          <td class="px-4 py-4 text-right text-sm whitespace-nowrap">
+            <%= button_to "Unlock", lock_path(period_lock), method: :delete, class: "cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline", form: { data: { turbo_frame: "_top" } } %>
+          </td>
+        </tr>
+      <% end %>
     <% end %>
+
+    <%= render "shared/pagination", pagy: @pagy, url: locks_path, frame: "locks_table" %>
+  <% else %>
+    <div class="mt-4">
+      <%= render "shared/empty_state",
+          icon: "lock.svg",
+          title: chips.any? ? "No matching locks" : "No months locked",
+          description: chips.any? ? "No locked month matches this filter." : "Lock a month to freeze its plans and actuals.",
+          action: link_to(new_lock_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
+            inline_svg_tag("lock.svg", class: "size-4") + "Lock a month"
+          } %>
+    </div>
   <% end %>
 <% end %>

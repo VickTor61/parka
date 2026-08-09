@@ -1,10 +1,19 @@
-<% if pagy.pages > 1 %>
-  <div class="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row">
-    <p class="text-sm text-gray-500"><%= pagy.from %>–<%= pagy.to %> of <%= pagy.count %></p>
+<div class="mt-4 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+  <div class="flex items-center gap-2">
+    <span class="text-sm text-gray-500">Rows per page</span>
 
-    <div class="flex items-center gap-2">
+    <%= form_with url: url, method: :get, data: { controller: "search", turbo_frame: frame, turbo_action: "replace" }, class: "contents" do |form| %>
+      <%= hidden_query_fields(except: %w[ limit page ]) %>
+      <%= form.select :limit, options_for_select(rows_per_page_options, pagy.limit), {}, class: "h-[32px] cursor-pointer rounded-lg border border-gray-200 py-1.5 pr-7 pl-2 text-sm focus:outline-none", data: { action: "change->search#submitForm" } %>
+    <% end %>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <span class="text-sm text-gray-700"><%= pagy.count.zero? ? "0 of 0" : "#{pagy.from}-#{pagy.to} of #{pagy.count}" %></span>
+
+    <span class="flex gap-2">
       <%= pagination_link "Previous", pagy.prev %>
       <%= pagination_link "Next", pagy.next %>
-    </div>
+    </span>
   </div>
-<% end %>
+</div>

@@ -1,4 +1,4 @@
-<%= form_with model: plan, url: url, data: { turbo_frame: "_top" } do |form| %>
+<%= form_with model: plan, url: url do |form| %>
   <%= render "shared/modal/header", title: plan.persisted? ? "Edit target" : "Add target" %>
 
   <div class="space-y-4 px-4 py-4">

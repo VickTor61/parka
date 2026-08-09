@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_09_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_09_103534) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,7 +27,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_120000) do
     t.index ["user_id", "month"], name: "index_actuals_on_user_id_and_month"
     t.index ["user_id"], name: "index_actuals_on_user_id"
     t.check_constraint "EXTRACT(day FROM month) = 1::numeric", name: "actuals_month_is_first_of_month"
-    t.check_constraint "amount >= 0::numeric", name: "actuals_amount_not_negative"
   end
 
   create_table "categories", force: :cascade do |t|

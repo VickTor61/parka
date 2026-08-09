@@ -8,10 +8,16 @@ Rails.application.routes.draw do
 
   namespace :actuals do
     resource :import, only: %i[ new create ]
+    resource :import_template, only: :show
   end
   resources :actuals
 
   resources :locks, only: %i[ index new create destroy ]
+
+  namespace :reports do
+    resources :entries, only: :index
+  end
+  resources :reports, only: :index
 
   get "up" => "rails/health#show", as: :rails_health_check
 

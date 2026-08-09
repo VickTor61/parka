@@ -7,7 +7,7 @@ class Actuals::ImportsController < ApplicationController
     @import = ActualsImport.new(user: Current.user, file: params.dig(:actuals_import, :file))
 
     if @import.save
-      redirect_to actuals_path, notice: "Imported #{helpers.pluralize(@import.imported_count, 'entry')}."
+      redirect_out_of_frame actuals_path, notice: "Imported #{helpers.pluralize(@import.imported_count, 'entry')}."
     else
       render :new, status: :unprocessable_content
     end

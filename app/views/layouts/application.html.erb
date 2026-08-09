@@ -6,6 +6,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="Parka" />
     <meta name="mobile-web-app-capable" content="yes" />
+<%# Paging and filtering replace the URL on the same path, which Turbo treats as a page refresh:
+    morphing keeps the scroll position instead of jumping to the top. This uses provide(:head),
+    so it has to run before yield(:head) below or it renders nothing at all. %>
+<% turbo_refreshes_with method: :morph, scroll: :preserve %>
+
     <%= csrf_meta_tags %> <%= csp_meta_tag %> <%= yield :head %>
 
     <link rel="icon" href="/icon.png" type="image/png" />
