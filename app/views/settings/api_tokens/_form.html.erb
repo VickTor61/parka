@@ -1,0 +1,16 @@
+<%= form_with model: api_token, url: settings_api_tokens_path do |form| %>
+  <%= render "shared/modal/header", title: "New API token" %>
+
+  <div class="space-y-4 px-4 py-4">
+    <%= render "shared/form_errors", record: api_token %>
+
+    <div>
+      <%= form.label :name, "What is it for?", class: field_label_class %>
+      <%= form.text_field :name, placeholder: "e.g. CI pipeline", class: field_class, required: true, autofocus: true %>
+    </div>
+
+    <p class="text-sm text-gray-500">The token is shown once, right after it is created. It carries the same access as your account.</p>
+  </div>
+
+  <%= render "shared/modal/footer", form: form, submit_label: "Create token" %>
+<% end %>
