@@ -58,6 +58,8 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+
+  gem "letter_opener"
 end
 
 group :test do
@@ -74,6 +76,9 @@ gem "chartkick"
 
 # CSV import of actuals (no longer a Ruby default gem as of 3.4)
 gem "csv"
+
+# API serialization
+gem "blueprinter"
 
 # Table search and filtering
 gem "ransack"

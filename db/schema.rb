@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_09_103534) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_09_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,6 +27,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_103534) do
     t.index ["user_id", "month"], name: "index_actuals_on_user_id_and_month"
     t.index ["user_id"], name: "index_actuals_on_user_id"
     t.check_constraint "EXTRACT(day FROM month) = 1::numeric", name: "actuals_month_is_first_of_month"
+  end
+
+  create_table "api_tokens", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "last_used_at"
+    t.string "name", null: false
+    t.string "token_digest", null: false
+    t.string "token_prefix", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["token_digest"], name: "index_api_tokens_on_token_digest", unique: true
+    t.index ["user_id", "created_at"], name: "index_api_tokens_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_api_tokens_on_user_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -204,6 +218,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_103534) do
 
   add_foreign_key "actuals", "categories", column: ["category_id", "user_id"], primary_key: ["id", "user_id"]
   add_foreign_key "actuals", "users"
+  add_foreign_key "api_tokens", "users"
   add_foreign_key "categories", "users"
   add_foreign_key "period_locks", "users"
   add_foreign_key "plans", "categories", column: ["category_id", "user_id"], primary_key: ["id", "user_id"]

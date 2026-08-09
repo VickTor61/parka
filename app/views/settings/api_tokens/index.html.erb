@@ -1,0 +1,77 @@
+<% content_for :title, "Settings" %>
+
+<%= content_for(:breadcrumb) do %>
+  <%= render "shared/breadcrumb", data: [{ pathname: "Settings" }] %>
+<% end %>
+
+<%= render "shared/page_header",
+    title: "API tokens",
+    description: "Create and View API tokens to authenticate requests to the API." %>
+
+<% if flash[:revealed_token].present? %>
+  <%= render "revealed", token: flash[:revealed_token], name: flash[:revealed_token_name] || "your token" %>
+<% end %>
+
+<%= search_form_for @q, url: settings_api_tokens_path, class: "contents", data: { controller: "search", turbo_action: "replace", turbo_frame: "api_tokens_table" } do |form| %>
+  <%= render "shared/toolbar",
+      form: form,
+      search_key: :name_cont,
+      search_placeholder: "Search name",
+      frame: "api_tokens_table",
+      reset_path: settings_api_tokens_path,
+      active_filters: search_chips(name_cont: { label: "Search" }),
+      action: link_to(new_settings_api_token_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
+        inline_svg_tag("plus.svg", class: "size-4") + "New token"
+      } %>
+<% end %>
+
+<%= turbo_frame_tag "api_tokens_table" do %>
+  <% if @api_tokens.empty? %>
+    <div class="mt-4">
+      <%= render "shared/empty_state",
+          icon: "settings.svg",
+          title: params.dig(:q, :name_cont).present? ? "No matching tokens" : "No API tokens yet",
+          description: params.dig(:q, :name_cont).present? ? "No token matches that search." : "Create a token to call the API from a script or another service.",
+          action: link_to(new_settings_api_token_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
+            inline_svg_tag("plus.svg", class: "size-4") + "New token"
+          } %>
+    </div>
+  <% else %>
+    <%= render layout: "shared/table", locals: { columns: [{ label: "Name" }, { label: "Token" }, { label: "Last used" }, { label: "Created" }, { label: "Status" }, { label: "", class: "w-32" }] } do %>
+      <% @api_tokens.each do |api_token| %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900"><%= api_token.name %></td>
+          <td class="px-4 py-4 font-mono text-xs whitespace-nowrap text-gray-500"><%= api_token.preview %></td>
+          <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-500"><%= api_token.used? ? time_ago_in_words(api_token.last_used_at) + " ago" : "Never" %></td>
+          <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-500"><%= api_token.created_at.strftime("%b %d, %Y") %></td>
+
+          <td class="px-4 py-4 text-sm whitespace-nowrap">
+            <% if api_token.active? %>
+              <span class="inline-flex items-center rounded-lg bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">Active</span>
+            <% else %>
+              <span class="inline-flex items-center rounded-lg bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">Inactive</span>
+            <% end %>
+          </td>
+
+          <td class="px-4 py-4 text-sm whitespace-nowrap">
+            <div class="flex items-center justify-end gap-1">
+              <%= button_to settings_api_token_rotation_path(api_token), method: :post, class: "cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900", form: { data: { turbo_confirm: "Rotate #{api_token.name}? The current token stops working immediately.", turbo_frame: "_top" } }, aria: { label: "Rotate #{api_token.name}" } do %>
+                <%= inline_svg_tag("refresh.svg", class: "size-4") %>
+              <% end %>
+
+              <%= button_to settings_api_token_path(api_token, api_token: { active: !api_token.active? }), method: :patch, class: "cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900", form: { data: { turbo_frame: "_top" } }, aria: { label: api_token.active? ? "Deactivate #{api_token.name}" : "Activate #{api_token.name}" } do %>
+                <%= inline_svg_tag(api_token.active? ? "eye-off.svg" : "eye.svg", class: "size-4") %>
+              <% end %>
+
+              <%= button_to settings_api_token_path(api_token), method: :delete, class: "cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-red-600", form: { data: { turbo_confirm: "Delete #{api_token.name}?", turbo_frame: "_top" } }, aria: { label: "Delete #{api_token.name}" } do %>
+                <%= inline_svg_tag("trash.svg", class: "size-4") %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+
+    <%= render "shared/pagination", pagy: @pagy, url: settings_api_tokens_path, frame: "api_tokens_table" %>
+  <% end %>
+<% end %>

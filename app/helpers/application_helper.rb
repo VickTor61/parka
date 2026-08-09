@@ -6,7 +6,8 @@ module ApplicationHelper
       { path: plans_path, svg: "target.svg", text: "Plans" },
       { path: actuals_path, svg: "wallet.svg", text: "Actuals" },
       { path: reports_path, svg: "chart.svg", text: "Report" },
-      { path: locks_path, svg: "lock.svg", text: "Locks" }
+      { path: locks_path, svg: "lock.svg", text: "Locks" },
+      { path: settings_api_tokens_path, svg: "settings.svg", text: "Settings" }
     ]
   end
 
