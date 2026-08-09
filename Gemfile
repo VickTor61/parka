@@ -74,3 +74,9 @@ gem "chartkick"
 
 # CSV import of actuals (no longer a Ruby default gem as of 3.4)
 gem "csv"
+
+# Report search and filtering
+gem "ransack"
+
+# Report pagination
+gem "pagy", "~> 9.4"

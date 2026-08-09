@@ -8,4 +8,8 @@ class Category < ApplicationRecord
   validates :name, presence: true, length: { maximum: 60 }, uniqueness: { scope: :user_id, case_sensitive: false }
 
   scope :ordered, -> { order(:name) }
+
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[ name ]
+  end
 end

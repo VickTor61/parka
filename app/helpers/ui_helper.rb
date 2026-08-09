@@ -33,6 +33,30 @@ module UiHelper
     end
   end
 
+  def blank_cell
+    tag.span("—", class: "text-gray-400")
+  end
+
+  def signed_money(amount)
+    return blank_cell if amount.nil?
+
+    "#{'+' if amount.positive?}#{money(amount)}"
+  end
+
+  def signed_percentage(value)
+    return blank_cell if value.nil?
+
+    "#{'+' if value.positive?}#{number_to_percentage(value, precision: 2)}"
+  end
+
+  def quarter_ranges(year)
+    (1..4).map do |quarter|
+      first = Date.new(year, (quarter * 3) - 2, 1)
+
+      { label: "Q#{quarter}", from: first.strftime(MonthlyPeriod::FORMAT), to: (first + 2.months).strftime(MonthlyPeriod::FORMAT) }
+    end
+  end
+
   def variance_class(amount)
     return "text-gray-500" if amount.nil? || amount.zero?
 
