@@ -1,0 +1,10 @@
+<% if pagy.pages > 1 %>
+  <div class="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row">
+    <p class="text-sm text-gray-500"><%= pagy.from %>–<%= pagy.to %> of <%= pagy.count %></p>
+
+    <div class="flex items-center gap-2">
+      <%= pagination_link "Previous", pagy.prev %>
+      <%= pagination_link "Next", pagy.next %>
+    </div>
+  </div>
+<% end %>

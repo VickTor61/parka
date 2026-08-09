@@ -1,0 +1,11 @@
+marketing_january:
+  user: one
+  category: marketing
+  month: 2026-01-01
+  amount: 5000.00
+
+payroll_january:
+  user: one
+  category: payroll
+  month: 2026-01-01
+  amount: 20000.00

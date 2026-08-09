@@ -1,0 +1,15 @@
+<% content_for :title, "Sign up" %>
+
+<%= render layout: "shared/auth/page", locals: { title: "Create Account", subtitle: "Already have an account?", link_text: "Log in", link_path: new_session_path } do %>
+  <%= render "shared/form_errors", record: @user %>
+
+  <%= form_with(model: @user, url: registration_path, class: "space-y-8") do |form| %>
+    <div class="space-y-4">
+      <%= render "shared/auth/email_field", form: form %>
+      <%= render "shared/auth/password_field", form: form, field: :password, placeholder: "At least 8 characters", autocomplete: "new-password", minlength: 8 %>
+      <%= render "shared/auth/password_field", form: form, field: :password_confirmation, label: "Confirm password", placeholder: "Repeat your password", autocomplete: "new-password", minlength: 8 %>
+    </div>
+
+    <%= form.submit "Create Account", class: auth_button_class %>
+  <% end %>
+<% end %>

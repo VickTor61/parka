@@ -16,11 +16,13 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="scheme-light bg-white">
     <main data-controller="sidebar" class="w-full h-full">
       <%= render "shared/sidebar/mobile" %>
       <div class="h-full w-full">
         <div id="flash_messages"><%= render "shared/flash" %></div>
+
+        <%= turbo_frame_tag "modal" %>
 
         <%= render "shared/sidebar/desktop" %>
 

@@ -1,0 +1,36 @@
+<%= form_with model: actual, url: url, data: { turbo_frame: "_top" } do |form| %>
+  <%= render "shared/modal/header", title: actual.persisted? ? "Edit entry" : "Log entry" %>
+
+  <div class="space-y-4 px-4 py-4">
+    <%= render "shared/form_errors", record: actual %>
+
+    <% if categories.empty? %>
+      <p class="text-sm text-gray-500">
+        You need a category first.
+        <%= link_to "Add one", new_category_path, class: "font-medium text-gray-900 hover:underline", data: { turbo_frame: "_top" } %>.
+      </p>
+    <% else %>
+      <div>
+        <%= form.label :category_id, "Category", class: field_label_class %>
+        <%= form.collection_select :category_id, categories, :id, :name, { prompt: "Select a category" }, class: field_class, required: true %>
+      </div>
+
+      <div>
+        <%= form.label :month, class: field_label_class %>
+        <%= form.text_field :month, value: actual.month_label, placeholder: "YYYY-MM", class: field_class, required: true, data: { controller: "month-picker" } %>
+      </div>
+
+      <div>
+        <%= form.label :amount, "Amount spent", class: field_label_class %>
+        <%= form.number_field :amount, step: "0.01", min: 0, placeholder: "0.00", class: field_class, required: true %>
+      </div>
+
+      <div>
+        <%= form.label :note, "Note (optional)", class: field_label_class %>
+        <%= form.text_area :note, rows: 2, placeholder: "What was this for?", class: field_class %>
+      </div>
+    <% end %>
+  </div>
+
+  <%= render "shared/modal/footer", form: form, submit_label: actual.persisted? ? "Save" : "Log entry" %>
+<% end %>

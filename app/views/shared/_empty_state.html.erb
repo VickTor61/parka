@@ -1,0 +1,12 @@
+<div class="mx-auto flex h-[235px] flex-col justify-center gap-2 rounded-md border border-gray-200 p-4 text-center">
+  <div class="mx-auto w-fit rounded-md border border-gray-100 p-4">
+    <%= inline_svg_tag(icon, class: "size-6 text-gray-400") %>
+  </div>
+
+  <h2 class="text-base font-semibold text-gray-900"><%= title %></h2>
+  <p class="mx-auto text-sm text-gray-400"><%= description %></p>
+
+  <% if local_assigns[:action] %>
+    <div class="mx-auto mt-2 w-fit"><%= action %></div>
+  <% end %>
+</div>

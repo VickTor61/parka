@@ -1,0 +1,12 @@
+<% content_for :title, "Sign in" %>
+
+<%= render layout: "shared/auth/page", locals: { title: "Welcome Back", subtitle: "Don't have an account?", link_text: "Sign up", link_path: new_registration_path } do %>
+  <%= form_with(url: session_path, class: "space-y-8") do |form| %>
+    <div class="space-y-4">
+      <%= render "shared/auth/email_field", form: form, value: params[:email_address] %>
+      <%= render "shared/auth/password_field", form: form, field: :password, placeholder: "Enter your password", autocomplete: "current-password", link_text: "Forgot password?", link_path: new_password_path %>
+    </div>
+
+    <%= form.submit "Log In", class: auth_button_class %>
+  <% end %>
+<% end %>

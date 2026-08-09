@@ -1,0 +1,58 @@
+<% content_for :title, "Locks" %>
+
+<%= content_for(:breadcrumb) do %>
+  <%= render "shared/breadcrumb", data: [{ pathname: "Locks" }] %>
+<% end %>
+
+<%= render "shared/page_header",
+    title: "Locks",
+    description: "Locked months are read-only — plans and actuals in them cannot be added, edited or deleted.",
+    action: link_to(new_lock_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
+      inline_svg_tag("lock.svg", class: "size-4") + "Lock a month"
+    } %>
+
+<div class="mt-6 rounded-md border border-gray-200 p-4">
+  <div class="mb-4 flex items-center justify-between">
+    <h2 class="text-sm font-medium text-gray-900"><%= @year %></h2>
+
+    <div class="flex items-center gap-1">
+      <%= link_to "←", locks_path(year: @year - 1), class: "rounded-md border border-gray-200 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100", aria: { label: "Previous year" } %>
+      <%= link_to "→", locks_path(year: @year + 1), class: "rounded-md border border-gray-200 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100", aria: { label: "Next year" } %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+    <% (1..12).each do |number| %>
+      <% month = Date.new(@year, number, 1) %>
+      <% lock = @locks_by_month[month] %>
+
+      <% if lock %>
+        <%= button_to lock_path(lock), method: :delete, class: "flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border border-gray-300 bg-gray-100 px-2.5 py-2 text-sm font-medium text-gray-900 transition-colors hover:border-gray-400", aria: { label: "Unlock #{month.strftime('%B %Y')}" } do %>
+          <span><%= month.strftime("%b") %></span>
+          <%= inline_svg_tag("lock.svg", class: "size-3.5") %>
+        <% end %>
+      <% else %>
+        <%= button_to locks_path, params: { period_lock: { month: month.strftime("%Y-%m") } }, class: "flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-2.5 py-2 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-900", aria: { label: "Lock #{month.strftime('%B %Y')}" } do %>
+          <span><%= month.strftime("%b") %></span>
+          <%= inline_svg_tag("lock-open.svg", class: "size-3.5") %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <p class="mt-4 text-xs text-gray-500">Click a month to lock or unlock it. Locking granularity is one month.</p>
+</div>
+
+<% if @period_locks.any? %>
+  <%= render layout: "shared/table", locals: { columns: [{ label: "Locked month" }, { label: "Locked on" }, { label: "", class: "w-24" }] } do %>
+    <% @period_locks.each do |period_lock| %>
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900"><%= month_label(period_lock.month) %></td>
+        <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-500"><%= period_lock.created_at.strftime("%b %d, %Y") %></td>
+        <td class="px-4 py-4 text-right text-sm whitespace-nowrap">
+          <%= button_to "Unlock", lock_path(period_lock), method: :delete, class: "cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline" %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+<% end %>

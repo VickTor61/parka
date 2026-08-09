@@ -1,0 +1,12 @@
+<%= form_with model: category, url: url, data: { turbo_frame: "_top" } do |form| %>
+  <%= render "shared/modal/header", title: category.persisted? ? "Edit category" : "Add category" %>
+
+  <div class="px-4 py-4">
+    <%= render "shared/form_errors", record: category %>
+
+    <%= form.label :name, class: field_label_class %>
+    <%= form.text_field :name, placeholder: "e.g. Marketing", class: field_class, required: true, autofocus: true %>
+  </div>
+
+  <%= render "shared/modal/footer", form: form, submit_label: category.persisted? ? "Save" : "Create" %>
+<% end %>

@@ -1,0 +1,31 @@
+<%= form_with model: plan, url: url, data: { turbo_frame: "_top" } do |form| %>
+  <%= render "shared/modal/header", title: plan.persisted? ? "Edit target" : "Add target" %>
+
+  <div class="space-y-4 px-4 py-4">
+    <%= render "shared/form_errors", record: plan %>
+
+    <% if categories.empty? %>
+      <p class="text-sm text-gray-500">
+        You need a category first.
+        <%= link_to "Add one", new_category_path, class: "font-medium text-gray-900 hover:underline", data: { turbo_frame: "_top" } %>.
+      </p>
+    <% else %>
+      <div>
+        <%= form.label :category_id, "Category", class: field_label_class %>
+        <%= form.collection_select :category_id, categories, :id, :name, { prompt: "Select a category" }, class: field_class, required: true %>
+      </div>
+
+      <div>
+        <%= form.label :month, class: field_label_class %>
+        <%= form.text_field :month, value: plan.month_label, placeholder: "YYYY-MM", class: field_class, required: true, data: { controller: "month-picker" } %>
+      </div>
+
+      <div>
+        <%= form.label :amount, "Target amount", class: field_label_class %>
+        <%= form.number_field :amount, step: "0.01", min: 0, placeholder: "0.00", class: field_class, required: true %>
+      </div>
+    <% end %>
+  </div>
+
+  <%= render "shared/modal/footer", form: form, submit_label: plan.persisted? ? "Save" : "Create" %>
+<% end %>
