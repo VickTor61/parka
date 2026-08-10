@@ -52,8 +52,30 @@ class Api::V1::BaseController < ActionController::Base
       (params[:limit].presence || 25).to_i.clamp(1, 100)
     end
 
-    def search_params
-      params[:q]&.permit!&.to_h || {}
+    def filter_month(scope)
+      scope = scope.where(month: MonthlyPeriod.cast(params[:month])) if params[:month].present?
+      scope = scope.where(month: MonthlyPeriod.cast(params[:month_from])..) if params[:month_from].present?
+      scope = scope.where(month: ..MonthlyPeriod.cast(params[:month_to])) if params[:month_to].present?
+      scope
+    end
+
+    def filter_amount(scope)
+      scope = scope.where(amount: params[:amount_min]..) if params[:amount_min].present?
+      scope = scope.where(amount: ..params[:amount_max]) if params[:amount_max].present?
+      scope
+    end
+
+    def filter_category(scope)
+      scope = scope.where(category_id: params[:category_id]) if params[:category_id].present?
+      scope = scope.joins(:category).merge(Category.name_matching(params[:category_name])) if params[:category_name].present?
+      scope
+    end
+
+    def filter_text(scope, column)
+      return scope if params[column].blank?
+
+      value = ActiveRecord::Base.sanitize_sql_like(params[column].to_s.strip)
+      scope.where("#{scope.klass.table_name}.#{column} ILIKE ?", "%#{value}%")
     end
 
     def render_collection(records, meta, blueprint, **options)

@@ -135,21 +135,21 @@ Paginated:
 
 ## Filtering and search
 
-Index endpoints accept the same Ransack predicates as the web tables, under `q`.
+Index endpoints use plain query parameters. These filters are API-specific; the web tables use their own UI search parameters.
+
+| Resource | Parameters |
+| --- | --- |
+| Categories | `name` (contains) |
+| Plans | `category_id`, `category_name` (contains), `month`, `month_from`, `month_to`, `amount_min`, `amount_max` |
+| Actuals | Plan filters plus `note` (contains) |
+| Locks | `month`, `month_from`, `month_to` |
+
+Month values use `YYYY-MM`. Bounds are inclusive. Amount bounds are inclusive.
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-  "http://localhost:3000/api/v1/plans?q[category_name_cont]=marketing&q[month_gteq]=2026-01-01"
+  "http://localhost:3000/api/v1/plans?category_name=marketing&month_from=2026-01&month_to=2026-03&amount_min=1000"
 ```
-
-| Resource | Filterable |
-| --- | --- |
-| Categories | `name`, `created_at` |
-| Plans | `month`, `amount`, `category_id`, `category_name` |
-| Actuals | `month`, `amount`, `note`, `category_id`, `category_name` |
-| Locks | `month`, `month_text` |
-
-Predicates: `_eq`, `_cont`, `_gteq`, `_lteq`, `_in`. Anything outside the allowlist is ignored, not an error.
 
 ---
 
@@ -274,6 +274,25 @@ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/jso
 Multipart upload:
 
 ```bash
+curl -X POST -H "Authorization: Bearer $TOKEN" \
+  -F "actuals_import[file]=@actuals.csv" \
+  http://localhost:3000/api/v1/actuals/import
+```
+
+Quick test from scratch:
+
+```bash
+# 1. Create a test file
+cat > actuals.csv <<'EOF'
+month,category,amount
+2026-03,Marketing,4800
+2026-03,Payroll,20500
+EOF
+
+# 2. Set your token — hidden prompt, lasts for the terminal session
+read -s TOKEN
+
+# 3. Upload
 curl -X POST -H "Authorization: Bearer $TOKEN" \
   -F "actuals_import[file]=@actuals.csv" \
   http://localhost:3000/api/v1/actuals/import

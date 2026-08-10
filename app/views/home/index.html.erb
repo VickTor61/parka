@@ -1,4 +1,4 @@
-<% content_for :title, "Home" %>
+<% content_for :title, "Overview" %>
 
 <%= content_for(:breadcrumb) do %>
   <%= render "shared/breadcrumb", data: [{ pathname: "Home" }] %>
@@ -6,7 +6,7 @@
 
 <%= render "shared/page_header",
     title: "Overview",
-    description: @summary.any_data? ? "Plan versus actual across everything you have recorded — #{@summary.range_label}." : "Plan versus actual across everything you have recorded." %>
+    description: "Plan versus actual across everything you have recorded." %>
 
 <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
   <%= link_to plans_path, class: "rounded-md border border-gray-200 p-4 transition-colors hover:bg-gray-50" do %>

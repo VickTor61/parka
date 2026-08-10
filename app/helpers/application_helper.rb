@@ -1,7 +1,7 @@
 module ApplicationHelper
   def navigation_items
     [
-      { path: root_path, svg: "house.svg", text: "Home" },
+      { path: root_path, svg: "house.svg", text: "Overview" },
       { path: categories_path, svg: "tag.svg", text: "Categories" },
       { path: plans_path, svg: "target.svg", text: "Plans" },
       { path: actuals_path, svg: "wallet.svg", text: "Actuals" },

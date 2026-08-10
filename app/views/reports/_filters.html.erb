@@ -27,11 +27,6 @@
             </div>
 
             <div>
-              <%= form.label :category_id, "Category", class: field_label_class %>
-              <%= form.select :category_id, options_from_collection_for_select(categories, :id, :name, report.category_id), { include_blank: "All categories" }, class: field_class %>
-            </div>
-
-            <div>
               <span class="<%= field_label_class %>">Fiscal year</span>
               <div class="grid grid-cols-2 gap-2">
                 <%= form.select :fiscal_year,
@@ -42,7 +37,7 @@
                     options_for_select(fiscal_start_month_options, report.fiscal_start_month),
                     {}, class: field_class %>
               </div>
-              <p class="mt-1 text-xs text-gray-400">Starts in the month you pick; January is the calendar year.</p>
+              <p class="mt-1 text-xs text-gray-400">Starts in the month you pick.</p>
             </div>
 
             <div>

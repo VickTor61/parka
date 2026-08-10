@@ -80,10 +80,22 @@ class Api::V1::ApiTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "index accepts the same ransack filters as the app" do
-    get api_v1_categories_path(q: { name_cont: "mark" }), headers: @headers
+  test "category index accepts a simple name filter" do
+    get api_v1_categories_path(name: "mark"), headers: @headers
 
     assert_equal [ "Marketing" ], body["data"].map { |category| category["name"] }
+  end
+
+  test "plan index accepts explicit filters" do
+    get api_v1_plans_path(category_name: "pay", month_from: "2026-01", amount_min: 10_000), headers: @headers
+
+    assert_equal [ "Payroll" ], body["data"].map { |plan| plan["category"]["name"] }
+  end
+
+  test "actual index accepts explicit filters" do
+    get api_v1_actuals_path(category_name: "mark", month: "2026-01", amount_max: 5_000, note: "ad"), headers: @headers
+
+    assert_equal [ "Ad spend" ], body["data"].map { |actual| actual["note"] }
   end
 
   test "create, update and destroy a category" do

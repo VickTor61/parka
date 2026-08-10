@@ -2,7 +2,12 @@ class Api::V1::ActualsController < Api::V1::BaseController
   before_action :set_actual, only: %i[ show update destroy ]
 
   def index
-    scope = current_user.actuals.includes(:category).ransack(search_params).result.ordered
+    scope = current_user.actuals.includes(:category)
+    scope = filter_month(scope)
+    scope = filter_amount(scope)
+    scope = filter_category(scope)
+    scope = filter_text(scope, :note)
+    scope = scope.ordered
     records, meta = paginated(scope)
 
     render_collection records, meta, ActualBlueprint, locked_months: locked_months

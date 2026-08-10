@@ -6,7 +6,7 @@ class ReportsController < ApplicationController
       to: params[:to],
       query: params[:query],
       category_id: params[:category_id],
-      fiscal_year: params[:fiscal_year],
+      fiscal_year: params[:fiscal_year] || Date.current.year,
       fiscal_start_month: params[:fiscal_start_month]
     )
     @categories = Current.user.categories.ordered

@@ -31,16 +31,16 @@
         end)
 
         concat(content_tag(:div, class: "mt-3") do
+          concat form.label(:category_id_eq, "Category", class: field_label_class)
+          concat form.select(:category_id_eq, options_from_collection_for_select(@categories, :id, :name, params.dig(:q, :category_id_eq)), { include_blank: "All categories" }, class: field_class)
+        end)
+
+        concat(content_tag(:div, class: "mt-3") do
           concat label_tag(nil, "Amount range", class: field_label_class)
           concat(content_tag(:div, class: "grid grid-cols-2 gap-2") do
             concat form.number_field(:amount_gteq, step: "0.01", min: 0, placeholder: "Min", class: field_class)
             concat form.number_field(:amount_lteq, step: "0.01", min: 0, placeholder: "Max", class: field_class)
           end)
-        end)
-
-        concat(content_tag(:div, class: "mt-3") do
-          concat form.label(:category_id_eq, "Category", class: field_label_class)
-          concat form.select(:category_id_eq, options_from_collection_for_select(@categories, :id, :name, params.dig(:q, :category_id_eq)), { include_blank: "All categories" }, class: field_class)
         end)
       },
       action: link_to(new_plan_path, class: primary_button_class, data: { turbo_frame: "modal" }) {
