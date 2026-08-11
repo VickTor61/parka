@@ -1,4 +1,4 @@
-<%= form_with url: reports_path, method: :get, class: "contents", data: { controller: "search", turbo_action: "replace", turbo_frame: "report_table" } do |form| %>
+<%= form_with url: reports_path, method: :get, class: "contents", data: { controller: "search report-filters", turbo_action: "replace", turbo_frame: "report_table" } do |form| %>
   <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div class="flex items-center gap-x-3">
       <div class="flex h-[34px] w-[200px] items-center gap-2 rounded-lg border border-slate-200 px-2 shadow-xs">
@@ -17,12 +17,12 @@
             <div class="grid grid-cols-2 gap-2">
               <div>
                 <%= form.label :from, "From", class: field_label_class %>
-                <%= form.text_field :from, value: report.month_param(report.from), placeholder: "YYYY-MM", class: field_class, data: { controller: "month-picker" } %>
+                <%= form.text_field :from, value: report.month_param(report.from), placeholder: "YYYY-MM", class: field_class, data: { controller: "month-picker", report_filters_target: "from", action: "input->report-filters#rangeChanged change->report-filters#rangeChanged" } %>
               </div>
 
               <div>
                 <%= form.label :to, "To", class: field_label_class %>
-                <%= form.text_field :to, value: report.month_param(report.to), placeholder: "YYYY-MM", class: field_class, data: { controller: "month-picker" } %>
+                <%= form.text_field :to, value: report.month_param(report.to), placeholder: "YYYY-MM", class: field_class, data: { controller: "month-picker", report_filters_target: "to", action: "input->report-filters#rangeChanged change->report-filters#rangeChanged" } %>
               </div>
             </div>
 
@@ -31,7 +31,7 @@
               <div class="grid grid-cols-2 gap-2">
                 <%= form.select :fiscal_year,
                     options_for_select(fiscal_year_options, report.fiscal_year),
-                    { include_blank: "Not set" }, class: field_class %>
+                    { include_blank: "Not set" }, class: field_class, data: { report_filters_target: "fiscal_year", action: "change->report-filters#fiscalYearChanged" } %>
 
                 <%= form.select :fiscal_start_month,
                     options_for_select(fiscal_start_month_options, report.fiscal_start_month),
@@ -52,7 +52,7 @@
                 <%= link_to "Full year", reports_path(from: "#{year}-01", to: "#{year}-12", query: report.query, category_id: report.category_id),
                     class: "rounded-md border px-2 py-1 text-xs font-medium transition-colors #{report.range?("#{year}-01", "#{year}-12") ? 'border-gray-900 bg-gray-900 text-white' : 'border-slate-200 text-gray-700 hover:bg-gray-100'}" %>
 
-                <%= link_to "All time", reports_path(query: report.query, category_id: report.category_id),
+                <%= link_to "All time", reports_path(fiscal_year: "", query: report.query, category_id: report.category_id),
                     class: "rounded-md border px-2 py-1 text-xs font-medium transition-colors #{report.full_range? ? 'border-gray-900 bg-gray-900 text-white' : 'border-slate-200 text-gray-700 hover:bg-gray-100'}" %>
               </div>
             </div>

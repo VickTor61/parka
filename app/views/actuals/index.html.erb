@@ -14,7 +14,7 @@
    ) %>
 <% chips << { label: "Status", value: params[:status].capitalize, without: without_param(:status) } if params[:status].present? %>
 
-<%= search_form_for @q, url: actuals_path, class: "contents", data: { controller: "search", turbo_action: "replace", turbo_frame: "actuals_table" } do |form| %>
+<%= search_form_for @q, url: actuals_path, class: "contents", data: { controller: "search", turbo_action: "replace", turbo_frame: "_top" } do |form| %>
   <%= render "shared/toolbar",
       form: form,
       search_key: :category_name_or_note_cont,

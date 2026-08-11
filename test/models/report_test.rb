@@ -149,11 +149,23 @@ class ReportTest < ActiveSupport::TestCase
     assert_equal 1, fy.count
   end
 
-  test "a fiscal year overrides any explicit range" do
+  test "an explicit range overrides the fiscal year" do
     fy = Report.new(user: @user, fiscal_year: "2026", from: "2020-01", to: "2020-02")
+
+    assert_equal Date.new(2020, 1, 1), fy.from
+    assert_equal Date.new(2020, 2, 1), fy.to
+    assert_not fy.fiscal_year?
+  end
+
+  test "a fiscal year applies when no range is given" do
+    fy = Report.new(user: @user, fiscal_year: "2026")
 
     assert_equal Date.new(2026, 1, 1), fy.from
     assert_equal Date.new(2026, 12, 1), fy.to
+  end
+
+  test "a blank fiscal year with no range means all time" do
+    assert Report.new(user: @user, fiscal_year: "").full_range?
   end
 
   test "an out of range fiscal start month is clamped" do
