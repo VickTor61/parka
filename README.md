@@ -4,6 +4,8 @@ Set monthly spending targets per category, log what you actually spent, and comp
 
 **Live URL:** https://parka-jrl3.onrender.com
 
+> **Deployment note:** The live demo is hosted on Render, so the application may take a moment to respond after periods of inactivity. For a faster and more consistent experience, run the application locally with Docker.
+
 ---
 
 ## Table of contents
@@ -196,9 +198,8 @@ The submission includes a 5–10 minute walkthrough covering:
 2. The seeded FY 2026 report and variance calculations.
 3. Plans and Actuals filters, CSV import, and missing-actual behavior.
 4. Month locking and the server-side rejection of writes to locked periods.
-5. The deployed Render application and the local Docker Compose review path.
-
-Attach the recorded video URL to the submission alongside this README. No video URL is embedded here until the recording has been uploaded.
+5. The local Docker Compose review path.
+[Watch the Parka walkthrough on Loom](https://www.loom.com/share/c3e530e10b9f434f8dcf88c1cafa7e07)
 
 ---
 
