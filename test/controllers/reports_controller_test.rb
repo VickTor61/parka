@@ -49,6 +49,13 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "Payroll", count: 0
   end
 
+  test "an explicit range does not keep the default fiscal year" do
+    get reports_path(from: "2026-01", to: "2026-03")
+
+    assert_select "span", text: /Fiscal year:/, count: 0
+    assert_select "span", text: /Range: Jan 2026 – Mar 2026/
+  end
+
   test "index paginates" do
     30.times { |index| users(:one).plans.create!(category: users(:one).categories.create!(name: "Cat #{index}"), month: "2026-01", amount: 1) }
 

@@ -1,12 +1,18 @@
 class ReportsController < ApplicationController
   def index
+    fiscal_year = if params[:from].blank? && params[:to].blank? && !params.key?(:fiscal_year)
+      Date.current.year
+    else
+      params[:fiscal_year]
+    end
+
     @report = Report.new(
       user: Current.user,
       from: params[:from],
       to: params[:to],
       query: params[:query],
       category_id: params[:category_id],
-      fiscal_year: params[:fiscal_year],
+      fiscal_year: fiscal_year,
       fiscal_start_month: params[:fiscal_start_month]
     )
     @categories = Current.user.categories.ordered

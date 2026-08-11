@@ -35,9 +35,14 @@ class Report
     @user = user
     @fiscal_start_month = (fiscal_start_month.presence || DEFAULT_FISCAL_START_MONTH).to_i.clamp(1, 12)
     @fiscal_year = fiscal_year.presence&.to_i
-    @from, @to = @fiscal_year ? fiscal_range : normalize_range(from, to)
     @query = query.to_s.strip.presence
     @category_id = category_id.presence
+    @from, @to = normalize_range(from, to)
+    if @fiscal_year && (!range_present || [ @from, @to ] == fiscal_range)
+      @from, @to = fiscal_range
+    elsif range_present
+      @fiscal_year = nil
+    end
   end
 
   def fiscal_year?
@@ -240,6 +245,10 @@ class Report
       start = Date.new(fiscal_year, fiscal_start_month, 1)
 
       [ start, start.next_year.prev_month ]
+    end
+
+    def range_present
+      from.present? || to.present?
     end
 
     # No range means the whole history — the range only narrows once it is asked for.

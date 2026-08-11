@@ -2,7 +2,11 @@ class Api::V1::PlansController < Api::V1::BaseController
   before_action :set_plan, only: %i[ show update destroy ]
 
   def index
-    scope = current_user.plans.includes(:category).ransack(search_params).result.ordered
+    scope = current_user.plans.includes(:category)
+    scope = filter_month(scope)
+    scope = filter_amount(scope)
+    scope = filter_category(scope)
+    scope = scope.ordered
     records, meta = paginated(scope)
 
     render_collection records, meta, PlanBlueprint, locked_months: locked_months

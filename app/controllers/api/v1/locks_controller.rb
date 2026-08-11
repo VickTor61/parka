@@ -1,6 +1,6 @@
 class Api::V1::LocksController < Api::V1::BaseController
   def index
-    scope = current_user.period_locks.ransack(search_params).result.ordered
+    scope = filter_month(current_user.period_locks).ordered
     records, meta = paginated(scope)
 
     render_collection records, meta, PeriodLockBlueprint

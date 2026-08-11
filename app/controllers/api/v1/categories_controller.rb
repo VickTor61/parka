@@ -2,7 +2,7 @@ class Api::V1::CategoriesController < Api::V1::BaseController
   before_action :set_category, only: %i[ show update destroy ]
 
   def index
-    scope = current_user.categories.ransack(search_params).result.ordered
+    scope = filter_text(current_user.categories, :name).ordered
     records, meta = paginated(scope)
 
     render_collection records, meta, CategoryBlueprint
